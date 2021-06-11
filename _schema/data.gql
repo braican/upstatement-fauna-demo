@@ -1,0 +1,14 @@
+type User {
+  uid: String!
+  name: String!
+  email: String!
+  picture: String
+}
+
+type Game {
+  date: String
+  opposing_team: String
+  opposing_runs: Int
+  runs: Int
+  uid: User
+}
