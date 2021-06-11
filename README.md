@@ -1,36 +1,61 @@
 # A Fauna Demo
 
-Demos some Fauna functionality, including single sign-on with Google.
+Demos some Fauna functionality, including authentication to the app with Google. The application is built with React and serverless functions, which can be run with [Netlify Dev](https://www.netlify.com/products/dev), and uses [Fauna DB]((https://fauna.com/)) as a database for persistent storage.
 
-## Available Scripts
+## Setup
 
-In the project directory, you can run:
+This demo utilizes two third party services, both of which you'll need to configure:
 
-### `yarn start`
+- **[Google Cloud Platform](https://console.cloud.google.com/)**, for logging in with Google (note that this is the only authentication method - you'll need a Google account to log in to the app).
+- **[Fauna DB](https://fauna.com/)**, for the database.
 
-Runs the app in the development mode. The page will reload if you make edits. You will also see any lint errors in the console.
+Credentials for these applications can be stored in an `.env` file at the root of the project. Before going through the following steps, copy the `.env.sample` file to a `.env` file.
 
-### `yarn test`
+You'll also need the [Netlify CLI](https://docs.netlify.com/cli/get-started/) installed to run serverless functions. You can install this with the following command:
 
-Launches the test runner in the interactive watch mode. See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```sh
+npm install netlify-cli -g
+```
 
-### `yarn build`
+### Setting up an application on Google Cloud Platform
 
-Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimizes the build for the best performance.
+For the authentication piece via Google, you'll need to set up a project within Google Cloud:
 
-The build is minified and the filenames include the hashes. Your app is ready to be deployed!
+1. Log into [Google Cloud's console](https://console.cloud.google.com/) and create a new project.
+2. Once created, make sure you've selected your new project and navigate to the "APIs & Services" page, then click on the "OAuth consent screen" link in the sidebar (you'll need to set this up to add credentials for your OAuth client ID).
+3. Choose the "External" option for user type, then enter the app name and developer addresses in the required fields (don't worry about the other fields).
+4. Once saved, click into the "Credentials" page in the sidebar. Once on this page, click the "Create Credentials" button near the top and select the "OAuth client ID" option.
+5. Choose the "Web Application" option under "Application Type", then fill out a name. For both the "Authorized JavaScript origins" and "Authorized redirect URIs" settings, add the `http://localhost:8888` URI.
+6. Click create. A modal will pop up with your credentials; store the client ID in your `.env` file as the `REACT_APP_GOOGLE_OAUTH_CLIENT_ID` value, and store the client secret as the `GOOGLE_OAUTH_CLIENT_SECRET` value.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Setting up a Fauna application
 
-### `yarn eject`
+Fauna will provide the database that will store the authenticated users and manage authorization of data from the database. If you don't already have one, create a free [Fauna](https://fauna.com/) account, then log in to your dashboard. Then:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Create a new database. It can be named anything you'd like (don't check the pre-populate with demo data option).
+2. Once created, navigate to the "GraphQL tab in the sidebar and click the "Import Schema" button. Upload the schema file from this project located at `_schema/data.gql`. This will create two collections, one for Users and one for Games, as well as an index for retrieving a User by their uid.
+3. Next, visit the "Security" page, and create a new key. Select the "Server" option from the Role dropdown, and give the key a name if you'd like. Upon saving, Fauna will display your server key; copy it and save it to the `FAUNA_SERVER_KEY` variable in your `.env` file.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### The application
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+The front-end application is built with React and uses a handful of other dependencies. You can install these with the following install command:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```sh
+yarn install
+```
+
+## Starting the app
+
+Once everything is installed and configured, you can start the application with the following command:
+
+```sh
+yarn start
+```
+This will start Netlify dev which will start your local environment with environment variables, as well as compile and run the serverless functions.
+
+The start command will output a localhost url (it should be http://localhost:8888) that you can use to access the site. When you visit the site, you should see a login button; clicking this will open a Google login screen in a modal. Once you log in with a Google account here, the app should authenticate and display your name and email address at the top. Refreshing the page should keep you logged in.
+
+Open up Fauna and click into your application. Check out the User collection, and note that there should be a record for your login.
 
 ## Learn More
 

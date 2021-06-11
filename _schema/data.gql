@@ -12,3 +12,7 @@ type Game {
   runs: Int
   uid: User
 }
+
+type Query {
+  users_by_uid(uid: String): [User!]
+}
