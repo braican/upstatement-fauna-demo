@@ -83,7 +83,7 @@ const getFaunaUser = async data => {
 };
 
 /**
- * Log into Fauna with the provided user data and
+ * Log into Fauna by creating a token for the user.
  * @param {object} data User data.
  * @return string
  */

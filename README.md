@@ -57,6 +57,22 @@ The start command will output a localhost url (it should be http://localhost:888
 
 Open up Fauna and click into your application. Check out the User collection, and note that there should be a record for your login.
 
+## What's happening
+
+### Logging in
+
+- The application renders a login button, which when clicked initiates the Google sign-in process on the client side via their [JavaScript library](https://developers.google.com/identity/sign-in/web/reference). We're using a utility component, [react-google-login](https://github.com/anthonyjgrove/react-google-login), to help facilitate this.
+- Once the client authenticates, the application will receive an encrypted token. We take that token and send it to our own `auth` endpoint, which is handled by a serverless function that we've defined.
+- Our auth endpoint does a few things:
+    - Authenticates the user by verifying the token that we recieved on the front-end with Google's [node.js auth library](https://www.npmjs.com/package/google-auth-library).
+    - Checks our Fauna database to see if we have a record for that user. If so, we get the user record; if not, we add the user record to the database.
+    - Logs in to Fauna by creating an access token for the user. This generates a unique token that can be used to authenticate requests to the database for the specific user that the token was created for, allowing us to ensure that they can only touch what the current user is allowed to touch.
+    - Sends the user data and their access token back to the front-end. We'll then use that token to authenticate future requests that the user makes.
+
+### Logging out
+
+Once a user is logged in, a button will be provided that will let them log out. Clicking this button send a request to our `logout` endpoint (also handled by a serverless function), which calls Fauna's `Logout` function to delete the token that was created as a part of the log in process.
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
